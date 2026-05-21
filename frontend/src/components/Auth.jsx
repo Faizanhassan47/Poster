@@ -20,7 +20,10 @@ export default function Auth({ onAuthSuccess }) {
     setErrorMsg('');
     setIsLoading(true);
 
-    const url = isLogin ? '/api/auth/login' : '/api/auth/register';
+    const apiBase = import.meta.env.VITE_API_URL || '';
+    const url = isLogin
+      ? `${apiBase}/api/auth/login`
+      : `${apiBase}/api/auth/register`;
     const bodyData = isLogin
       ? { email, password }
       : { name, email, password };

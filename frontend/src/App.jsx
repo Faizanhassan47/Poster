@@ -54,7 +54,8 @@ function App() {
   // Auto-login or session restoration
   useEffect(() => {
     if (token) {
-      fetch('/api/auth/me', {
+      const apiBase = import.meta.env.VITE_API_URL || '';
+      fetch(`${apiBase}/api/auth/me`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }

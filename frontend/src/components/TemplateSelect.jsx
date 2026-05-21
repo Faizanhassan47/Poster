@@ -11,7 +11,8 @@ export default function TemplateSelect({ user, onSelectTemplate, onOpenAdmin, on
     setIsLoading(true);
     setErrorMsg('');
     try {
-      const response = await fetch('/api/templates');
+      const apiBase = import.meta.env.VITE_API_URL || '';
+      const response = await fetch(`${apiBase}/api/templates`);
       if (!response.ok) {
         throw new Error('Failed to load templates from the API.');
       }

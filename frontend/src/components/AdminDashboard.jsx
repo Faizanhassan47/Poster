@@ -23,15 +23,16 @@ export default function AdminDashboard({ token, onClose }) {
   const fetchTemplatesAndStatus = async () => {
     setIsLoading(true);
     try {
+      const apiBase = import.meta.env.VITE_API_URL || '';
       // 1. Fetch templates
-      const templatesRes = await fetch('/api/templates');
+      const templatesRes = await fetch(`${apiBase}/api/templates`);
       if (templatesRes.ok) {
         const templatesData = await templatesRes.json();
         setTemplates(templatesData);
       }
 
       // 2. Fetch server integration statuses
-      const statusRes = await fetch('/api/status');
+      const statusRes = await fetch(`${apiBase}/api/status`);
       if (statusRes.ok) {
         const statusData = await statusRes.json();
         setServerStatus(statusData);
@@ -73,7 +74,8 @@ export default function AdminDashboard({ token, onClose }) {
 
     try {
       setUploadProgress(40);
-      const response = await fetch('/api/templates', {
+      const apiBase = import.meta.env.VITE_API_URL || '';
+      const response = await fetch(`${apiBase}/api/templates`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -116,7 +118,8 @@ export default function AdminDashboard({ token, onClose }) {
     setSuccessMsg('');
 
     try {
-      const response = await fetch(`/api/templates/${id}`, {
+      const apiBase = import.meta.env.VITE_API_URL || '';
+      const response = await fetch(`${apiBase}/api/templates/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
