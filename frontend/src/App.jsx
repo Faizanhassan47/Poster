@@ -16,9 +16,9 @@ import {
   ArrowLeft
 } from 'lucide-react';
 
-import Auth from './components/Auth';
-import TemplateSelect from './components/TemplateSelect';
-import AdminDashboard from './components/AdminDashboard';
+import Auth from './components/Auth/Auth';
+import TemplateSelect from './components/TemplateSelect/TemplateSelect';
+import AdminDashboard from './components/AdminDashboard/AdminDashboard';
 import './App.css';
 
 function App() {

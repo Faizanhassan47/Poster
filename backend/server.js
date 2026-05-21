@@ -295,6 +295,18 @@ app.delete('/api/templates/:id', authenticateToken, adminOnly, async (req, res) 
   }
 });
 
+// Serve frontend static assets from frontend/dist
+const frontendDistPath = path.join(__dirname, '../frontend/dist');
+if (fs.existsSync(frontendDistPath)) {
+  app.use(express.static(frontendDistPath));
+  app.get('*', (req, res, next) => {
+    if (req.url.startsWith('/api')) {
+      return next();
+    }
+    res.sendFile(path.join(frontendDistPath, 'index.html'));
+  });
+}
+
 // Start Server
 app.listen(PORT, '0.0.0.0', () => {
   console.log('\x1b[35m%s\x1b[0m', `🚀 Poster Studio Express Server running on http://0.0.0.0:${PORT}`);
