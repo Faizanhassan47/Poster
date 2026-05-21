@@ -1,0 +1,19 @@
+{
+  "name": "background-removal-poster-app",
+  "version": "1.0.0",
+  "description": "Full-Stack Poster Studio with AI Background Removal & Template Management",
+  "private": true,
+  "scripts": {
+    "install:frontend": "cd frontend && npm install",
+    "install:backend": "cd backend && npm install",
+    "install-all": "npm install && npm run install:frontend && npm run install:backend",
+    "frontend": "cd frontend && npm run dev",
+    "backend": "cd backend && npm start",
+    "dev": "concurrently \"npm run backend\" \"npm run frontend\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "dependencies": {}
+
+}
