@@ -17,13 +17,13 @@ if (!fs.existsSync(localUploadsDir)) {
 }
 
 let s3Client = null;
-let bucketName = 'dome-cloud';
-let endpoint = 'https://s3.idrivee2.com';
-let region = 'ap-southeast-1';
+let bucketName = process.env.IDRIVE_BUCKET_NAME || 'dome-cloud';
+let endpoint = process.env.IDRIVE_ENDPOINT || 'https://s3.idrivee2.com';
+let region = process.env.IDRIVE_REGION || 'ap-southeast-1';
 
 const initS3 = () => {
-  const accessKeyId = "[ENCRYPTION_KEY]";
-  const secretAccessKey = "[ENCRYPTION_KEY]";
+  const accessKeyId = process.env.IDRIVE_ACCESS_KEY_ID;
+  const secretAccessKey = process.env.IDRIVE_SECRET_ACCESS_KEY;
 
   if (accessKeyId && secretAccessKey && bucketName && endpoint && region) {
     try {
