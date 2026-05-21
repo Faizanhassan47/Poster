@@ -7,6 +7,9 @@ export default defineConfig({
   optimizeDeps: {
     exclude: ['@imgly/background-removal']
   },
+  build: {
+    chunkSizeWarningLimit: 1600
+  },
   server: {
     proxy: {
       '/api': {
