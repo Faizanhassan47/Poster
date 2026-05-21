@@ -522,7 +522,7 @@ function App() {
       </header>
 
       {/* Main Content */}
-      <main className="app-content">
+      <main className={`app-content${phase === 'ADMIN_DASHBOARD' ? ' app-content--full' : ''}`}>
 
         {/* PHASE: AUTH */}
         {phase === 'AUTH' && (

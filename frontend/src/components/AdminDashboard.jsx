@@ -1,66 +1,50 @@
 import { useState, useEffect } from 'react';
-import { Sparkles, ArrowLeft, Plus, Trash2, HardDrive, UploadCloud, CheckCircle, AlertCircle } from 'lucide-react';
+import {
+  ArrowLeft, Plus, Trash2, HardDrive, UploadCloud,
+  CheckCircle, AlertCircle, UserPlus, User, Lock,
+  Mail, Image, LayoutDashboard, RefreshCw, X, Eye, EyeOff
+} from 'lucide-react';
 import './AdminDashboard.css';
 
-export default function AdminDashboard({ token, onClose }) {
-  const [templates, setTemplates] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  
-  // Status check states
-  const [serverStatus, setServerStatus] = useState({ database: 'loading', storage: 'loading' });
-
-  // Form states
+// ─── Sub-page: Upload Template ────────────────────────────────────────────────
+function UploadTemplatePage({ token, onSuccess }) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [file, setFile] = useState(null);
+  const [preview, setPreview] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
-
-  // Notifications
   const [successMsg, setSuccessMsg] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
 
-  const fetchTemplatesAndStatus = async () => {
-    setIsLoading(true);
-    try {
-      const apiBase = import.meta.env.VITE_API_URL || '';
-      // 1. Fetch templates
-      const templatesRes = await fetch(`${apiBase}/api/templates`);
-      if (templatesRes.ok) {
-        const templatesData = await templatesRes.json();
-        setTemplates(templatesData);
-      }
-
-      // 2. Fetch server integration statuses
-      const statusRes = await fetch(`${apiBase}/api/status`);
-      if (statusRes.ok) {
-        const statusData = await statusRes.json();
-        setServerStatus(statusData);
-      }
-    } catch (err) {
-      console.error('Failed to load dashboard data:', err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchTemplatesAndStatus();
-  }, []);
-
   const handleFileChange = (e) => {
-    const selectedFile = e.target.files?.[0];
-    if (selectedFile) {
-      setFile(selectedFile);
+    const f = e.target.files?.[0];
+    if (f) {
+      setFile(f);
+      setPreview(URL.createObjectURL(f));
     }
   };
 
-  const handleUploadTemplate = async (e) => {
+  const handleDrop = (e) => {
     e.preventDefault();
-    if (!title || !file) {
-      setErrorMsg('Template title and image file are required.');
-      return;
+    const f = e.dataTransfer.files?.[0];
+    if (f && f.type.startsWith('image/')) {
+      setFile(f);
+      setPreview(URL.createObjectURL(f));
     }
+  };
+
+  const clearFile = () => {
+    setFile(null);
+    setPreview(null);
+    const el = document.getElementById('adminFileInput');
+    if (el) el.value = '';
+  };
+
+  const handleUpload = async (e) => {
+    e.preventDefault();
+    if (!title.trim()) { setErrorMsg('Template name is required.'); return; }
+    if (!file) { setErrorMsg('Please select an image file.'); return; }
 
     setIsUploading(true);
     setUploadProgress(10);
@@ -68,288 +52,489 @@ export default function AdminDashboard({ token, onClose }) {
     setSuccessMsg('');
 
     const formData = new FormData();
-    formData.append('title', title);
-    formData.append('description', description);
+    formData.append('title', title.trim());
+    formData.append('description', description.trim());
     formData.append('templateImage', file);
 
     try {
       setUploadProgress(40);
       const apiBase = import.meta.env.VITE_API_URL || '';
-      const response = await fetch(`${apiBase}/api/templates`, {
+      const res = await fetch(`${apiBase}/api/templates`, {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
-        body: formData
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: formData,
       });
 
-      setUploadProgress(80);
-      const data = await response.json();
+      setUploadProgress(85);
+      const data = await res.json();
 
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to upload template.');
-      }
+      if (!res.ok) throw new Error(data.message || 'Upload failed.');
 
       setUploadProgress(100);
-      setSuccessMsg('Template added and processed successfully!');
+      setSuccessMsg(`✅ "${title}" uploaded successfully!`);
       setTitle('');
       setDescription('');
-      setFile(null);
-      
-      // Reset file input element
-      const fileInput = document.getElementById('adminFileInput');
-      if (fileInput) fileInput.value = '';
+      clearFile();
+      if (onSuccess) onSuccess();
 
-      // Reload lists
-      fetchTemplatesAndStatus();
+      setTimeout(() => setSuccessMsg(''), 5000);
     } catch (err) {
       setErrorMsg(err.message);
     } finally {
       setIsUploading(false);
+      setTimeout(() => setUploadProgress(0), 1000);
     }
   };
 
-  const handleDeleteTemplate = async (id, title) => {
-    if (!confirm(`Are you sure you want to permanently delete template: "${title}"?`)) {
-      return;
-    }
+  return (
+    <div className="adp-page">
+      <div className="adp-page-header">
+        <div className="adp-page-icon" style={{ background: 'linear-gradient(135deg, #f27a18, #f59e0b)' }}>
+          <UploadCloud size={22} color="white" />
+        </div>
+        <div>
+          <h2 className="adp-page-title">Upload Poster Template</h2>
+          <p className="adp-page-desc">Add a new high-resolution poster frame to the gallery</p>
+        </div>
+      </div>
 
-    setErrorMsg('');
-    setSuccessMsg('');
+      {successMsg && (
+        <div className="adp-alert adp-alert-success">
+          <CheckCircle size={18} />
+          <span>{successMsg}</span>
+        </div>
+      )}
+      {errorMsg && (
+        <div className="adp-alert adp-alert-error">
+          <AlertCircle size={18} />
+          <span>{errorMsg}</span>
+          <button onClick={() => setErrorMsg('')} className="adp-alert-close"><X size={14} /></button>
+        </div>
+      )}
 
+      <form onSubmit={handleUpload} className="adp-form">
+        <div className="adp-form-row">
+          {/* Left: Fields */}
+          <div className="adp-form-fields">
+            <div className="adp-field">
+              <label className="adp-label">Template Name <span className="adp-required">*</span></label>
+              <input
+                type="text"
+                placeholder="e.g. Immunity Achievers Frame"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                className="adp-input"
+                required
+              />
+            </div>
+
+            <div className="adp-field">
+              <label className="adp-label">Description <span style={{ color: 'var(--text-secondary)', fontWeight: 400 }}>(optional)</span></label>
+              <textarea
+                placeholder="Brief description or usage guidelines..."
+                rows="4"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                className="adp-textarea"
+              />
+            </div>
+
+            {isUploading && (
+              <div className="adp-progress-wrap">
+                <div className="adp-progress-row">
+                  <span>Uploading to cloud storage...</span>
+                  <span>{uploadProgress}%</span>
+                </div>
+                <div className="adp-progress-bar">
+                  <div className="adp-progress-fill" style={{ width: `${uploadProgress}%` }} />
+                </div>
+              </div>
+            )}
+
+            <button type="submit" disabled={isUploading} className="adp-btn-primary">
+              {isUploading ? (
+                <><span className="adp-spinner" /> Uploading...</>
+              ) : (
+                <><UploadCloud size={18} /> Upload Template</>
+              )}
+            </button>
+          </div>
+
+          {/* Right: File Drop Zone + Preview */}
+          <div className="adp-form-upload">
+            <label className="adp-label">Image File <span className="adp-required">*</span></label>
+            <div
+              className={`adp-dropzone ${file ? 'has-file' : ''}`}
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={handleDrop}
+              onClick={() => !file && document.getElementById('adminFileInput').click()}
+            >
+              <input
+                id="adminFileInput"
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                style={{ display: 'none' }}
+              />
+
+              {preview ? (
+                <div className="adp-preview-wrap">
+                  <img src={preview} alt="preview" className="adp-preview-img" />
+                  <div className="adp-preview-info">
+                    <span className="adp-preview-name">{file.name}</span>
+                    <span className="adp-preview-size">{(file.size / 1024 / 1024).toFixed(2)} MB</span>
+                  </div>
+                  <button type="button" onClick={clearFile} className="adp-preview-clear">
+                    <X size={14} /> Remove
+                  </button>
+                </div>
+              ) : (
+                <div className="adp-dropzone-inner">
+                  <div className="adp-dropzone-icon">
+                    <Image size={36} />
+                  </div>
+                  <p className="adp-dropzone-text">Drop image here or <span className="adp-dropzone-link">browse</span></p>
+                  <p className="adp-dropzone-hint">PNG, JPG, WEBP up to 10MB</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  );
+}
+
+// ─── Sub-page: Manage Templates ───────────────────────────────────────────────
+function ManageTemplatesPage({ token }) {
+  const [templates, setTemplates] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [successMsg, setSuccessMsg] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
+
+  const fetchTemplates = async () => {
+    setIsLoading(true);
     try {
       const apiBase = import.meta.env.VITE_API_URL || '';
-      const response = await fetch(`${apiBase}/api/templates/${id}`, {
+      const res = await fetch(`${apiBase}/api/templates`);
+      if (res.ok) setTemplates(await res.json());
+    } catch (err) {
+      setErrorMsg('Failed to load templates.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => { fetchTemplates(); }, []);
+
+  const handleDelete = async (id, title) => {
+    if (!confirm(`Permanently delete "${title}"?`)) return;
+    setErrorMsg('');
+    setSuccessMsg('');
+    try {
+      const apiBase = import.meta.env.VITE_API_URL || '';
+      const res = await fetch(`${apiBase}/api/templates/${id}`, {
         method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+        headers: { 'Authorization': `Bearer ${token}` },
       });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to delete template.');
-      }
-
-      setSuccessMsg(`Template "${title}" has been deleted.`);
-      fetchTemplatesAndStatus();
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message);
+      setSuccessMsg(`"${title}" deleted.`);
+      fetchTemplates();
+      setTimeout(() => setSuccessMsg(''), 4000);
     } catch (err) {
       setErrorMsg(err.message);
     }
   };
 
   return (
-    <div className="upload-hero admin-container">
-      
-      {/* Dashboard Header */}
-      <div className="admin-header">
-        <div>
-          <button
-            onClick={onClose}
-            className="btn-secondary btn-back"
-          >
-            <ArrowLeft size={16} />
-            <span>Back to Gallery</span>
-          </button>
-          <h2 className="admin-title">
-            Super Admin Template Console
-          </h2>
-          <p className="admin-desc">
-            Manage poster templates, upload high-res poster frames, and inspect cloud system integrations.
-          </p>
+    <div className="adp-page">
+      <div className="adp-page-header">
+        <div className="adp-page-icon" style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}>
+          <LayoutDashboard size={22} color="white" />
         </div>
+        <div>
+          <h2 className="adp-page-title">Manage Templates</h2>
+          <p className="adp-page-desc">{templates.length} template{templates.length !== 1 ? 's' : ''} in the gallery</p>
+        </div>
+        <button onClick={fetchTemplates} className="adp-btn-icon" title="Refresh">
+          <RefreshCw size={16} />
+        </button>
       </div>
 
-
-      {/* Notifications */}
       {successMsg && (
-        <div className="glass-panel admin-notify-success">
-          <CheckCircle size={20} style={{ color: '#10b981', flexShrink: 0 }} />
-          <span>{successMsg}</span>
+        <div className="adp-alert adp-alert-success">
+          <CheckCircle size={18} /><span>{successMsg}</span>
         </div>
       )}
-
       {errorMsg && (
-        <div className="glass-panel admin-notify-error">
-          <AlertCircle size={20} style={{ color: '#ef4444', flexShrink: 0 }} />
-          <span>{errorMsg}</span>
+        <div className="adp-alert adp-alert-error">
+          <AlertCircle size={18} /><span>{errorMsg}</span>
+          <button onClick={() => setErrorMsg('')} className="adp-alert-close"><X size={14} /></button>
         </div>
       )}
 
-      {/* Split grid for Dashboard Console */}
-      <div className="admin-grid">
-        
-        {/* Form panel to upload templates */}
-        <div className="glass-panel admin-card">
-          <h3 style={{ margin: '0 0 1.5rem 0', fontSize: '1.3rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-primary)' }}>
-            <Plus size={20} style={{ color: 'var(--primary)' }} />
-            <span>Upload Poster Frame</span>
-          </h3>
-
-          <form onSubmit={handleUploadTemplate} className="admin-form">
-            
-            {/* Title */}
-            <div className="admin-form-group">
-              <label className="admin-form-label">Template Name</label>
-              <input
-                type="text"
-                placeholder="e.g. Immunity Achievers Frame"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                required
-                className="admin-input"
-              />
-            </div>
-
-            {/* Description */}
-            <div className="admin-form-group">
-              <label className="admin-form-label">Description</label>
-              <textarea
-                placeholder="Brief guidelines or branding info..."
-                rows="3"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                className="admin-textarea"
-              />
-            </div>
-
-            {/* File drop zone upload */}
-            <div className="admin-form-group">
-              <label className="admin-form-label">Template Image File</label>
-              
-              <div
-                onClick={() => document.getElementById('adminFileInput').click()}
-                className="admin-file-zone"
-              >
-                <input
-                  id="adminFileInput"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                  style={{ display: 'none' }}
-                  required
+      {isLoading ? (
+        <div className="adp-skeleton-list">
+          {[1, 2, 3].map(n => <div key={n} className="adp-skeleton" />)}
+        </div>
+      ) : templates.length === 0 ? (
+        <div className="adp-empty">
+          <HardDrive size={48} />
+          <p>No templates found. Upload one to get started.</p>
+        </div>
+      ) : (
+        <div className="adp-template-grid">
+          {templates.map((t) => (
+            <div key={t._id} className="adp-template-card">
+              <div className="adp-template-img-wrap">
+                <img
+                  src={t.url}
+                  alt={t.title}
+                  className="adp-template-img"
+                  onError={(e) => { e.target.src = '/template.jpg'; }}
                 />
-                
-                <div className="admin-file-icon">
-                  <UploadCloud size={32} />
+              </div>
+              <div className="adp-template-body">
+                <h4 className="adp-template-title">{t.title}</h4>
+                <p className="adp-template-desc">{t.description || 'No description.'}</p>
+                <div className="adp-template-meta">
+                  <span className={`adp-badge ${t.storage === 'idrive-e2' || t.storage === 'google-drive' ? 'cloud' : 'local'}`}>
+                    {t.storage === 'idrive-e2' ? '☁️ iDrive E2' : t.storage === 'google-drive' ? '☁️ Google Drive' : '💾 Local'}
+                  </span>
+                  <span className="adp-badge id">ID: {t.fileId.substring(0, 12)}…</span>
                 </div>
-                
-                <span className="admin-file-text" style={{ color: file ? 'var(--text-primary)' : 'var(--text-secondary)' }}>
-                  {file ? file.name : 'Select high-res image (PNG/JPG)'}
-                </span>
-                
-                {file && (
-                  <div className="admin-file-size">
-                    {(file.size / 1024 / 1024).toFixed(2)} MB
-                  </div>
+              </div>
+              <div className="adp-template-actions">
+                {t.fileId === 'template.jpg' ? (
+                  <span className="adp-protected">🔒 System</span>
+                ) : (
+                  <button
+                    onClick={() => handleDelete(t._id, t.title)}
+                    className="adp-btn-delete"
+                    title="Delete template"
+                  >
+                    <Trash2 size={15} />
+                    <span>Delete</span>
+                  </button>
                 )}
               </div>
             </div>
-
-            {/* Progress Bar */}
-            {isUploading && (
-              <div style={{ marginTop: '0.5rem' }}>
-                <div className="progress-info-row">
-                  <span>Uploading to server...</span>
-                  <span>{uploadProgress}%</span>
-                </div>
-                <div className="loading-progress-bar" style={{ height: '6px' }}>
-                  <div className="loading-progress-fill" style={{ width: `${uploadProgress}%`, animation: 'none' }}></div>
-                </div>
-              </div>
-            )}
-
-            {/* Submit */}
-            <button
-              type="submit"
-              disabled={isUploading}
-              className="btn-primary"
-              style={{ padding: '0.8rem', borderRadius: '12px', fontSize: '0.95rem', width: '100%', marginTop: '0.5rem' }}
-            >
-              {isUploading ? 'Processing upload...' : 'Add Template Frame'}
-            </button>
-
-          </form>
+          ))}
         </div>
-
-        {/* Existing templates catalog grid */}
-        <div>
-          <h3 className="catalog-title">
-            Active Templates ({templates.length})
-          </h3>
-
-          {isLoading ? (
-            <div className="catalog-list">
-              {[1, 2].map(n => (
-                <div key={n} className="glass-panel skeleton" style={{ height: '100px', borderRadius: '16px' }} />
-              ))}
-            </div>
-          ) : templates.length === 0 ? (
-            <div className="glass-panel catalog-empty-state">
-              <HardDrive size={36} style={{ color: 'var(--text-secondary)', marginBottom: '0.75rem', opacity: 0.5 }} />
-              <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', margin: 0 }}>No active poster templates found in DB.</p>
-            </div>
-          ) : (
-            <div className="catalog-list">
-              {templates.map((template) => (
-                <div
-                  key={template._id}
-                  className="glass-panel catalog-item"
-                >
-                  {/* Small Preview image */}
-                  <div className="catalog-img-wrap">
-                    <img
-                      src={template.url}
-                      alt=""
-                      className="catalog-img"
-                      onError={(e) => { e.target.src = '/template.jpg'; }}
-                    />
-                  </div>
-
-                  {/* Title & Storage details */}
-                  <div className="catalog-details">
-                    <h4 className="catalog-item-title">
-                      {template.title}
-                    </h4>
-                    <p className="catalog-item-desc">
-                      {template.description || 'No description.'}
-                    </p>
-                    <div className="catalog-tags">
-                      <span className="tag-id">
-                        ID: {template.fileId.substring(0, 15)}...
-                      </span>
-                      <span className={`tag-storage ${template.storage === 'idrive-e2' || template.storage === 'google-drive' ? 'cloud' : 'local'}`}>
-                        {template.storage === 'idrive-e2' ? 'iDrive E2 S3' : template.storage === 'google-drive' ? 'Google Drive' : 'Local Disk'}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Action delete (default vaccine frame can't be deleted) */}
-                  <div>
-                    {template.fileId === 'template.jpg' ? (
-                      <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', padding: '0.5rem' }}>System Protected</span>
-                    ) : (
-                      <button
-                        onClick={() => handleDeleteTemplate(template._id, template.title)}
-                        className="btn-delete"
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    )}
-                  </div>
-
-                </div>
-              ))}
-            </div>
-          )}
-
-        </div>
-
-      </div>
-
-      
+      )}
     </div>
   );
 }
 
+// ─── Sub-page: Create Admin User ──────────────────────────────────────────────
+function CreateAdminPage({ token }) {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [successMsg, setSuccessMsg] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!name || !email || !password) {
+      setErrorMsg('All fields are required.');
+      return;
+    }
+    setIsLoading(true);
+    setErrorMsg('');
+    setSuccessMsg('');
+    try {
+      const apiBase = import.meta.env.VITE_API_URL || '';
+      const res = await fetch(`${apiBase}/api/auth/create-admin`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ name, email, password }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message);
+      setSuccessMsg(`Admin account for "${name}" created successfully!`);
+      setName('');
+      setEmail('');
+      setPassword('');
+    } catch (err) {
+      setErrorMsg(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="adp-page">
+      <div className="adp-page-header">
+        <div className="adp-page-icon" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
+          <UserPlus size={22} color="white" />
+        </div>
+        <div>
+          <h2 className="adp-page-title">Create Admin User</h2>
+          <p className="adp-page-desc">Add a new administrator account to the system</p>
+        </div>
+      </div>
+
+      {successMsg && (
+        <div className="adp-alert adp-alert-success">
+          <CheckCircle size={18} /><span>{successMsg}</span>
+        </div>
+      )}
+      {errorMsg && (
+        <div className="adp-alert adp-alert-error">
+          <AlertCircle size={18} /><span>{errorMsg}</span>
+          <button onClick={() => setErrorMsg('')} className="adp-alert-close"><X size={14} /></button>
+        </div>
+      )}
+
+      <div className="adp-create-admin-wrap">
+        <form onSubmit={handleSubmit} className="adp-form adp-create-admin-form">
+
+          <div className="adp-field">
+            <label className="adp-label">Full Name <span className="adp-required">*</span></label>
+            <div className="adp-input-wrap">
+              <User size={16} className="adp-input-icon" />
+              <input
+                type="text"
+                placeholder="e.g. Umar Khan"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="adp-input adp-input-icon-pad"
+                required
+              />
+            </div>
+          </div>
+
+          <div className="adp-field">
+            <label className="adp-label">Username / Email <span className="adp-required">*</span></label>
+            <div className="adp-input-wrap">
+              <Mail size={16} className="adp-input-icon" />
+              <input
+                type="text"
+                placeholder="e.g. umarkhan or admin@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="adp-input adp-input-icon-pad"
+                required
+              />
+            </div>
+          </div>
+
+          <div className="adp-field">
+            <label className="adp-label">Password <span className="adp-required">*</span></label>
+            <div className="adp-input-wrap">
+              <Lock size={16} className="adp-input-icon" />
+              <input
+                type={showPassword ? 'text' : 'password'}
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="adp-input adp-input-icon-pad adp-input-icon-pad-right"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="adp-pw-toggle"
+              >
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
+          </div>
+
+          <div className="adp-info-box">
+            <AlertCircle size={16} style={{ color: '#f59e0b', flexShrink: 0 }} />
+            <span>New admin accounts will have full access to the Admin Console. Only create accounts for trusted personnel.</span>
+          </div>
+
+          <button type="submit" disabled={isLoading} className="adp-btn-primary">
+            {isLoading ? (
+              <><span className="adp-spinner" /> Creating account...</>
+            ) : (
+              <><UserPlus size={18} /> Create Admin Account</>
+            )}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+// ─── Main Admin Dashboard Shell ───────────────────────────────────────────────
+export default function AdminDashboard({ token, onClose }) {
+  const [activePage, setActivePage] = useState('upload');
+  const [templateCount, setTemplateCount] = useState(null);
+
+  const refreshCount = async () => {
+    try {
+      const apiBase = import.meta.env.VITE_API_URL || '';
+      const res = await fetch(`${apiBase}/api/templates`);
+      if (res.ok) {
+        const data = await res.json();
+        setTemplateCount(data.length);
+      }
+    } catch {}
+  };
+
+  useEffect(() => { refreshCount(); }, []);
+
+  const tabs = [
+    { id: 'upload',  label: 'Upload Template',  icon: <UploadCloud size={17} /> },
+    { id: 'manage',  label: 'Manage Templates', icon: <LayoutDashboard size={17} /> },
+    { id: 'admin',   label: 'Create Admin',     icon: <UserPlus size={17} /> },
+  ];
+
+  return (
+    <div className="adp-shell">
+      {/* Sidebar */}
+      <aside className="adp-sidebar">
+        <div className="adp-sidebar-brand">
+          <div className="adp-sidebar-logo">
+            <LayoutDashboard size={20} color="white" />
+          </div>
+          <span>Admin Console</span>
+        </div>
+
+        <nav className="adp-nav">
+          {tabs.map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActivePage(tab.id)}
+              className={`adp-nav-item ${activePage === tab.id ? 'active' : ''}`}
+            >
+              {tab.icon}
+              <span>{tab.label}</span>
+              {tab.id === 'manage' && templateCount !== null && (
+                <span className="adp-nav-badge">{templateCount}</span>
+              )}
+            </button>
+          ))}
+        </nav>
+
+        <button onClick={onClose} className="adp-nav-back">
+          <ArrowLeft size={16} />
+          <span>Back to Gallery</span>
+        </button>
+      </aside>
+
+      {/* Main content area */}
+      <main className="adp-main">
+        {activePage === 'upload' && (
+          <UploadTemplatePage token={token} onSuccess={refreshCount} />
+        )}
+        {activePage === 'manage' && (
+          <ManageTemplatesPage token={token} />
+        )}
+        {activePage === 'admin' && (
+          <CreateAdminPage token={token} />
+        )}
+      </main>
+    </div>
+  );
+}
