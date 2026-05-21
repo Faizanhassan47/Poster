@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://zealous-renewal-production-f5ca.up.railway.app/api/:path*"
+    },
+    {
+      "source": "/uploads/:path*",
+      "destination": "https://zealous-renewal-production-f5ca.up.railway.app/uploads/:path*"
+    }
+  ]
+}
