@@ -8,5 +8,6 @@
       "source": "/uploads/:path*",
       "destination": "https://poster-backend-production-43f3.up.railway.app/uploads/:path*"
     }
-  ]
+  ],
+  "outputDirectory": "frontend/dist"
 }
