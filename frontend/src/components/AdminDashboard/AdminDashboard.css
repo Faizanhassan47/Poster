@@ -286,6 +286,12 @@
   box-shadow: 0 0 0 3px rgba(242,122,24,0.12);
 }
 
+select.adp-input {
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  text-overflow: ellipsis;
+}
+
 .adp-textarea {
   width: 100%;
   padding: 0.8rem 1rem;
@@ -541,6 +547,78 @@
 
 .adp-preview-clear:hover {
   background: rgba(239,68,68,0.15);
+}
+
+/* ── Interactive Drawing Canvas ────────────────────────── */
+.adp-draw-container {
+  position: relative;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  user-select: none;
+}
+
+.adp-draw-wrapper {
+  position: relative;
+  display: inline-block;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.adp-draw-img {
+  display: block;
+  max-height: 500px;
+  max-width: 100%;
+  object-fit: contain;
+}
+
+.adp-draw-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  cursor: crosshair;
+  z-index: 10;
+}
+
+.adp-draw-box {
+  position: absolute;
+  border: 2px solid;
+  background: rgba(255, 255, 255, 0.2);
+  pointer-events: none;
+  z-index: 20;
+}
+
+.adp-draw-box.name {
+  border-color: #3b82f6; /* Blue */
+  background: rgba(59, 130, 246, 0.2);
+}
+
+.adp-draw-box.designation {
+  border-color: #10b981; /* Green */
+  background: rgba(16, 185, 129, 0.2);
+}
+
+.adp-draw-label {
+  position: absolute;
+  top: -22px;
+  left: -2px;
+  background: inherit;
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px 4px 0 0;
+}
+
+.adp-draw-box.name .adp-draw-label {
+  background: #3b82f6;
+}
+
+.adp-draw-box.designation .adp-draw-label {
+  background: #10b981;
 }
 
 /* ── Template Grid ────────────────────────────────────── */

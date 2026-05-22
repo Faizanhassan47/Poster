@@ -41,15 +41,21 @@ function App() {
   const [zoom, setZoom] = useState(100);
   const [rotation, setRotation] = useState(0);
 
+  // User details for overlays
+  const [userName, setUserName] = useState('');
+  const [userDesignation, setUserDesignation] = useState('');
+
   // Export format: 'PNG', 'JPG', 'PDF'
   const [exportFormat, setExportFormat] = useState('PNG');
 
-  // References
   const canvasRef = useRef(null);
   const fabricCanvasRef = useRef(null);
   const userPhotoRef = useRef(null);
   const templateOverlayRef = useRef(null);
   const originalUserPhotoUrlRef = useRef(null);
+  
+  const nameTextRef = useRef(null);
+  const desigTextRef = useRef(null);
 
   // Auto-login or session restoration
   useEffect(() => {
@@ -91,6 +97,21 @@ function App() {
       }
     };
   }, []);
+
+  // Update text overlays when input changes
+  useEffect(() => {
+    if (nameTextRef.current && fabricCanvasRef.current) {
+      nameTextRef.current.set('text', userName);
+      fabricCanvasRef.current.renderAll();
+    }
+  }, [userName]);
+
+  useEffect(() => {
+    if (desigTextRef.current && fabricCanvasRef.current) {
+      desigTextRef.current.set('text', userDesignation);
+      fabricCanvasRef.current.renderAll();
+    }
+  }, [userDesignation]);
 
   const handleAuthSuccess = (newToken, authUser) => {
     localStorage.setItem('token', newToken);
@@ -254,6 +275,54 @@ function App() {
       canvas.add(templateImg);
       templateOverlayRef.current = templateImg;
 
+      // Create Text Overlays based on template config
+      if (selectedTemplate?.overlays) {
+        const o = selectedTemplate.overlays;
+        const nameX = (o.name?.x || 10) / 100 * width * scaleFactor;
+        const nameY = (o.name?.y || 70) / 100 * height * scaleFactor;
+        const nameW = (o.name?.width || 80) / 100 * width * scaleFactor;
+
+        const desigX = (o.designation?.x || 10) / 100 * width * scaleFactor;
+        const desigY = (o.designation?.y || 85) / 100 * height * scaleFactor;
+        const desigW = (o.designation?.width || 80) / 100 * width * scaleFactor;
+
+        nameTextRef.current = new fabric.Textbox(userName || 'Your Name', {
+          left: nameX,
+          top: nameY,
+          width: nameW,
+          fill: o.name?.color || '#000000',
+          fontSize: (o.name?.fontSize || 40) * scaleFactor,
+          fontFamily: o.name?.fontFamily || 'Arial',
+          textAlign: 'center',
+          originX: 'left',
+          originY: 'top',
+          selectable: false,
+          evented: false,
+          fontWeight: 'bold',
+          splitByGrapheme: false
+        });
+
+        desigTextRef.current = new fabric.Textbox(userDesignation || 'Your Designation', {
+          left: desigX,
+          top: desigY,
+          width: desigW,
+          fill: o.designation?.color || '#000000',
+          fontSize: (o.designation?.fontSize || 24) * scaleFactor,
+          fontFamily: o.designation?.fontFamily || 'Arial',
+          textAlign: 'center',
+          originX: 'left',
+          originY: 'top',
+          selectable: false,
+          evented: false,
+          splitByGrapheme: false
+        });
+
+        canvas.add(nameTextRef.current);
+        canvas.add(desigTextRef.current);
+        nameTextRef.current.bringToFront();
+        desigTextRef.current.bringToFront();
+      }
+
       // Load User Photo second (Top layer)
       fabric.Image.fromURL(userPhotoUrl, (userImg) => {
         // Calculate a generous default size (scale to fit about 75% of canvas height)
@@ -282,6 +351,10 @@ function App() {
         canvas.add(userImg);
         userPhotoRef.current = userImg;
         userImg.bringToFront();
+
+        // Ensure text overlays stay on top of the user photo
+        if (nameTextRef.current) nameTextRef.current.bringToFront();
+        if (desigTextRef.current) desigTextRef.current.bringToFront();
 
         // Auto-select the user photo layer so controls show immediately
         canvas.setActiveObject(userImg);
@@ -668,6 +741,37 @@ function App() {
                   <p className="instruction-text">
                     The background frame is fixed. You can <strong>drag, scale, rotate</strong>, and position your isolated user cutout.
                   </p>
+                </div>
+              </div>
+
+              <div className="panel-divider"></div>
+
+              {/* Text Overlays */}
+              <div className="panel-section">
+                <h3 className="section-title">Name & Designation</h3>
+                <div className="control-group" style={{ marginBottom: '0.75rem' }}>
+                  <div className="control-label">
+                    <span>Name</span>
+                  </div>
+                  <input
+                    type="text"
+                    value={userName}
+                    onChange={(e) => setUserName(e.target.value)}
+                    placeholder="Enter your name"
+                    style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid var(--border-color)', marginTop: '0.25rem', fontSize: '0.9rem' }}
+                  />
+                </div>
+                <div className="control-group">
+                  <div className="control-label">
+                    <span>Designation</span>
+                  </div>
+                  <input
+                    type="text"
+                    value={userDesignation}
+                    onChange={(e) => setUserDesignation(e.target.value)}
+                    placeholder="Enter your designation"
+                    style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid var(--border-color)', marginTop: '0.25rem', fontSize: '0.9rem' }}
+                  />
                 </div>
               </div>
 

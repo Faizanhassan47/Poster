@@ -17,11 +17,35 @@ function UploadTemplatePage({ token, onSuccess }) {
   const [successMsg, setSuccessMsg] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
 
+  // Overlay Configuration
+  const [nameX, setNameX] = useState(10);
+  const [nameY, setNameY] = useState(70);
+  const [nameWidth, setNameWidth] = useState(80);
+  const [nameHeight, setNameHeight] = useState(10);
+  const [nameColor, setNameColor] = useState('#000000');
+  const [nameSize, setNameSize] = useState(40);
+  const [nameFont, setNameFont] = useState('Arial');
+
+  const [desigX, setDesigX] = useState(10);
+  const [desigY, setDesigY] = useState(85);
+  const [desigWidth, setDesigWidth] = useState(80);
+  const [desigHeight, setDesigHeight] = useState(8);
+  const [desigColor, setDesigColor] = useState('#000000');
+  const [desigSize, setDesigSize] = useState(24);
+  const [desigFont, setDesigFont] = useState('Arial');
+
+  // Drawing State
+  const [drawingMode, setDrawingMode] = useState(null); // 'name' | 'designation' | null
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [currentMouse, setCurrentMouse] = useState({ x: 0, y: 0 });
+
   const handleFileChange = (e) => {
     const f = e.target.files?.[0];
     if (f) {
       setFile(f);
       setPreview(URL.createObjectURL(f));
+      setDrawingMode(null);
     }
   };
 
@@ -31,6 +55,7 @@ function UploadTemplatePage({ token, onSuccess }) {
     if (f && f.type.startsWith('image/')) {
       setFile(f);
       setPreview(URL.createObjectURL(f));
+      setDrawingMode(null);
     }
   };
 
@@ -55,6 +80,12 @@ function UploadTemplatePage({ token, onSuccess }) {
     formData.append('title', title.trim());
     formData.append('description', description.trim());
     formData.append('templateImage', file);
+
+    const overlays = {
+      name: { x: nameX, y: nameY, width: nameWidth, height: nameHeight, color: nameColor, fontSize: nameSize, fontFamily: nameFont },
+      designation: { x: desigX, y: desigY, width: desigWidth, height: desigHeight, color: desigColor, fontSize: desigSize, fontFamily: desigFont }
+    };
+    formData.append('overlays', JSON.stringify(overlays));
 
     try {
       setUploadProgress(40);
@@ -84,6 +115,61 @@ function UploadTemplatePage({ token, onSuccess }) {
       setIsUploading(false);
       setTimeout(() => setUploadProgress(0), 1000);
     }
+  };
+
+  const handleMouseDown = (e) => {
+    if (!drawingMode) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    setDragStart({ x, y });
+    setCurrentMouse({ x, y });
+    setIsDrawing(true);
+  };
+
+  const handleMouseMove = (e) => {
+    if (!isDrawing || !drawingMode) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    let x = ((e.clientX - rect.left) / rect.width) * 100;
+    let y = ((e.clientY - rect.top) / rect.height) * 100;
+    // Clamp to 0-100
+    x = Math.max(0, Math.min(100, x));
+    y = Math.max(0, Math.min(100, y));
+    setCurrentMouse({ x, y });
+  };
+
+  const handleMouseUp = () => {
+    if (!isDrawing || !drawingMode) return;
+    setIsDrawing(false);
+
+    const x = Math.min(dragStart.x, currentMouse.x);
+    const y = Math.min(dragStart.y, currentMouse.y);
+    const w = Math.abs(currentMouse.x - dragStart.x);
+    const h = Math.abs(currentMouse.y - dragStart.y);
+
+    if (w > 2 && h > 2) {
+      if (drawingMode === 'name') {
+        setNameX(Math.round(x));
+        setNameY(Math.round(y));
+        setNameWidth(Math.round(w));
+        setNameHeight(Math.round(h));
+      } else if (drawingMode === 'designation') {
+        setDesigX(Math.round(x));
+        setDesigY(Math.round(y));
+        setDesigWidth(Math.round(w));
+        setDesigHeight(Math.round(h));
+      }
+    }
+    setDrawingMode(null);
+  };
+
+  const getDrawnBoxStyle = (x, y, w, h) => {
+    return {
+      left: `${x}%`,
+      top: `${y}%`,
+      width: `${w}%`,
+      height: `${h}%`
+    };
   };
 
   return (
@@ -139,6 +225,62 @@ function UploadTemplatePage({ token, onSuccess }) {
               />
             </div>
 
+            <div className="adp-field" style={{ border: '1px solid var(--border-color)', padding: '1rem', borderRadius: '8px' }}>
+              <label className="adp-label" style={{ marginBottom: '0.75rem', fontSize: '1rem' }}>Text Overlay Settings (Name)</label>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
+                <div>
+                  <label className="adp-label" style={{ fontSize: '0.8rem' }}>Font Style</label>
+                  <select value={nameFont} onChange={(e) => setNameFont(e.target.value)} className="adp-input">
+                    <option value="Arial">Arial</option>
+                    <option value="Roboto">Roboto</option>
+                    <option value="Open Sans">Open Sans</option>
+                    <option value="Montserrat">Montserrat</option>
+                    <option value="Oswald">Oswald</option>
+                    <option value="Playfair Display">Playfair Display</option>
+                    <option value="Merriweather">Merriweather</option>
+                    <option value="Lobster">Lobster</option>
+                    <option value="Pacifico">Pacifico</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="adp-label" style={{ fontSize: '0.8rem' }}>Font Size</label>
+                  <input type="number" min="10" max="200" value={nameSize} onChange={(e) => setNameSize(Number(e.target.value))} className="adp-input" />
+                </div>
+                <div>
+                  <label className="adp-label" style={{ fontSize: '0.8rem' }}>Color</label>
+                  <input type="color" value={nameColor} onChange={(e) => setNameColor(e.target.value)} style={{ width: '100%', height: '42px', padding: '0', border: 'none', borderRadius: '8px' }} />
+                </div>
+              </div>
+            </div>
+
+            <div className="adp-field" style={{ border: '1px solid var(--border-color)', padding: '1rem', borderRadius: '8px' }}>
+              <label className="adp-label" style={{ marginBottom: '0.75rem', fontSize: '1rem' }}>Text Overlay Settings (Designation)</label>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
+                <div>
+                  <label className="adp-label" style={{ fontSize: '0.8rem' }}>Font Style</label>
+                  <select value={desigFont} onChange={(e) => setDesigFont(e.target.value)} className="adp-input">
+                    <option value="Arial">Arial</option>
+                    <option value="Roboto">Roboto</option>
+                    <option value="Open Sans">Open Sans</option>
+                    <option value="Montserrat">Montserrat</option>
+                    <option value="Oswald">Oswald</option>
+                    <option value="Playfair Display">Playfair Display</option>
+                    <option value="Merriweather">Merriweather</option>
+                    <option value="Lobster">Lobster</option>
+                    <option value="Pacifico">Pacifico</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="adp-label" style={{ fontSize: '0.8rem' }}>Font Size</label>
+                  <input type="number" min="10" max="200" value={desigSize} onChange={(e) => setDesigSize(Number(e.target.value))} className="adp-input" />
+                </div>
+                <div>
+                  <label className="adp-label" style={{ fontSize: '0.8rem' }}>Color</label>
+                  <input type="color" value={desigColor} onChange={(e) => setDesigColor(e.target.value)} style={{ width: '100%', height: '42px', padding: '0', border: 'none', borderRadius: '8px' }} />
+                </div>
+              </div>
+            </div>
+
             {isUploading && (
               <div className="adp-progress-wrap">
                 <div className="adp-progress-row">
@@ -178,15 +320,65 @@ function UploadTemplatePage({ token, onSuccess }) {
               />
 
               {preview ? (
-                <div className="adp-preview-wrap">
-                  <img src={preview} alt="preview" className="adp-preview-img" />
-                  <div className="adp-preview-info">
-                    <span className="adp-preview-name">{file.name}</span>
-                    <span className="adp-preview-size">{(file.size / 1024 / 1024).toFixed(2)} MB</span>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', width: '100%', padding: '1rem' }}>
+                  <div className="adp-draw-container">
+                    <div className="adp-draw-wrapper"
+                      onMouseDown={handleMouseDown}
+                      onMouseMove={handleMouseMove}
+                      onMouseUp={handleMouseUp}
+                      onMouseLeave={handleMouseUp}
+                    >
+                      <img src={preview} alt="preview" className="adp-draw-img" draggable={false} />
+                      
+                      {/* Interactive Drawing Overlay */}
+                      {drawingMode && (
+                        <div className="adp-draw-overlay" />
+                      )}
+
+                      {/* Current Drawing Box */}
+                      {isDrawing && (
+                        <div className={`adp-draw-box ${drawingMode}`} style={getDrawnBoxStyle(
+                          Math.min(dragStart.x, currentMouse.x),
+                          Math.min(dragStart.y, currentMouse.y),
+                          Math.abs(currentMouse.x - dragStart.x),
+                          Math.abs(currentMouse.y - dragStart.y)
+                        )}></div>
+                      )}
+
+                      {/* Saved Name Box */}
+                      {nameWidth > 0 && (!isDrawing || drawingMode !== 'name') && (
+                        <div className="adp-draw-box name" style={getDrawnBoxStyle(nameX, nameY, nameWidth, nameHeight)}>
+                          <span className="adp-draw-label">Name</span>
+                        </div>
+                      )}
+
+                      {/* Saved Designation Box */}
+                      {desigWidth > 0 && (!isDrawing || drawingMode !== 'designation') && (
+                        <div className="adp-draw-box designation" style={getDrawnBoxStyle(desigX, desigY, desigWidth, desigHeight)}>
+                          <span className="adp-draw-label">Designation</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                  <button type="button" onClick={clearFile} className="adp-preview-clear">
-                    <X size={14} /> Remove
-                  </button>
+                  
+                  <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center' }}>
+                    <button type="button" onClick={(e) => { e.stopPropagation(); setDrawingMode(drawingMode === 'name' ? null : 'name'); }} className="adp-btn-secondary" style={{ background: drawingMode === 'name' ? '#eff6ff' : '#ffffff', border: `1px solid ${drawingMode === 'name' ? '#3b82f6' : 'var(--border-color)'}`, color: drawingMode === 'name' ? '#3b82f6' : 'inherit', padding: '0.5rem', borderRadius: '8px', cursor: 'pointer', flex: 1 }}>
+                      {drawingMode === 'name' ? 'Drawing Name Area...' : 'Draw Name Area'}
+                    </button>
+                    <button type="button" onClick={(e) => { e.stopPropagation(); setDrawingMode(drawingMode === 'designation' ? null : 'designation'); }} className="adp-btn-secondary" style={{ background: drawingMode === 'designation' ? '#ecfdf5' : '#ffffff', border: `1px solid ${drawingMode === 'designation' ? '#10b981' : 'var(--border-color)'}`, color: drawingMode === 'designation' ? '#10b981' : 'inherit', padding: '0.5rem', borderRadius: '8px', cursor: 'pointer', flex: 1 }}>
+                      {drawingMode === 'designation' ? 'Drawing Designation Area...' : 'Draw Designation Area'}
+                    </button>
+                  </div>
+
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.5rem' }}>
+                    <div className="adp-preview-info" style={{ flexDirection: 'row', gap: '0.5rem' }}>
+                      <span className="adp-preview-name">{file.name}</span>
+                      <span className="adp-preview-size">{(file.size / 1024 / 1024).toFixed(2)} MB</span>
+                    </div>
+                    <button type="button" onClick={(e) => { e.stopPropagation(); clearFile(); }} className="adp-preview-clear">
+                      <X size={14} /> Remove
+                    </button>
+                  </div>
                 </div>
               ) : (
                 <div className="adp-dropzone-inner">
