@@ -101,17 +101,20 @@ function App() {
   // Update text overlays when input changes
   useEffect(() => {
     if (nameTextRef.current && fabricCanvasRef.current) {
-      nameTextRef.current.set('text', userName);
+      let combinedText = '';
+      if (userName && userDesignation) {
+        combinedText = `${userName} (${userDesignation})`;
+      } else if (userName) {
+        combinedText = userName;
+      } else if (userDesignation) {
+        combinedText = `(${userDesignation})`;
+      } else {
+        combinedText = 'Your Name (Designation)';
+      }
+      nameTextRef.current.set('text', combinedText);
       fabricCanvasRef.current.renderAll();
     }
-  }, [userName]);
-
-  useEffect(() => {
-    if (desigTextRef.current && fabricCanvasRef.current) {
-      desigTextRef.current.set('text', userDesignation);
-      fabricCanvasRef.current.renderAll();
-    }
-  }, [userDesignation]);
+  }, [userName, userDesignation]);
 
   const handleAuthSuccess = (newToken, authUser) => {
     localStorage.setItem('token', newToken);
@@ -282,11 +285,18 @@ function App() {
         const nameY = (o.name?.y || 70) / 100 * height * scaleFactor;
         const nameW = (o.name?.width || 80) / 100 * width * scaleFactor;
 
-        const desigX = (o.designation?.x || 10) / 100 * width * scaleFactor;
-        const desigY = (o.designation?.y || 85) / 100 * height * scaleFactor;
-        const desigW = (o.designation?.width || 80) / 100 * width * scaleFactor;
+        let combinedText = '';
+        if (userName && userDesignation) {
+          combinedText = `${userName} (${userDesignation})`;
+        } else if (userName) {
+          combinedText = userName;
+        } else if (userDesignation) {
+          combinedText = `(${userDesignation})`;
+        } else {
+          combinedText = 'Your Name (Designation)';
+        }
 
-        nameTextRef.current = new fabric.Textbox(userName || 'Your Name', {
+        nameTextRef.current = new fabric.Textbox(combinedText, {
           left: nameX,
           top: nameY,
           width: nameW,
@@ -302,25 +312,8 @@ function App() {
           splitByGrapheme: false
         });
 
-        desigTextRef.current = new fabric.Textbox(userDesignation || 'Your Designation', {
-          left: desigX,
-          top: desigY,
-          width: desigW,
-          fill: o.designation?.color || '#000000',
-          fontSize: (o.designation?.fontSize || 24) * scaleFactor,
-          fontFamily: o.designation?.fontFamily || 'Arial',
-          textAlign: 'center',
-          originX: 'left',
-          originY: 'top',
-          selectable: false,
-          evented: false,
-          splitByGrapheme: false
-        });
-
         canvas.add(nameTextRef.current);
-        canvas.add(desigTextRef.current);
         nameTextRef.current.bringToFront();
-        desigTextRef.current.bringToFront();
       }
 
       // Load User Photo second (Top layer)
@@ -354,7 +347,6 @@ function App() {
 
         // Ensure text overlays stay on top of the user photo
         if (nameTextRef.current) nameTextRef.current.bringToFront();
-        if (desigTextRef.current) desigTextRef.current.bringToFront();
 
         // Auto-select the user photo layer so controls show immediately
         canvas.setActiveObject(userImg);

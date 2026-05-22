@@ -26,16 +26,8 @@ function UploadTemplatePage({ token, onSuccess }) {
   const [nameSize, setNameSize] = useState(40);
   const [nameFont, setNameFont] = useState('Arial');
 
-  const [desigX, setDesigX] = useState(10);
-  const [desigY, setDesigY] = useState(85);
-  const [desigWidth, setDesigWidth] = useState(80);
-  const [desigHeight, setDesigHeight] = useState(8);
-  const [desigColor, setDesigColor] = useState('#000000');
-  const [desigSize, setDesigSize] = useState(24);
-  const [desigFont, setDesigFont] = useState('Arial');
-
   // Drawing State
-  const [drawingMode, setDrawingMode] = useState(null); // 'name' | 'designation' | null
+  const [drawingMode, setDrawingMode] = useState(null); // 'name' | null
   const [isDrawing, setIsDrawing] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [currentMouse, setCurrentMouse] = useState({ x: 0, y: 0 });
@@ -83,7 +75,7 @@ function UploadTemplatePage({ token, onSuccess }) {
 
     const overlays = {
       name: { x: nameX, y: nameY, width: nameWidth, height: nameHeight, color: nameColor, fontSize: nameSize, fontFamily: nameFont },
-      designation: { x: desigX, y: desigY, width: desigWidth, height: desigHeight, color: desigColor, fontSize: desigSize, fontFamily: desigFont }
+      designation: { x: 0, y: 0, width: 0, height: 0, color: '#000000', fontSize: 0, fontFamily: 'Arial' }
     };
     formData.append('overlays', JSON.stringify(overlays));
 
@@ -153,14 +145,35 @@ function UploadTemplatePage({ token, onSuccess }) {
         setNameY(Math.round(y));
         setNameWidth(Math.round(w));
         setNameHeight(Math.round(h));
-      } else if (drawingMode === 'designation') {
-        setDesigX(Math.round(x));
-        setDesigY(Math.round(y));
-        setDesigWidth(Math.round(w));
-        setDesigHeight(Math.round(h));
       }
     }
     setDrawingMode(null);
+  };
+
+  const handleTouchStart = (e) => {
+    if (!drawingMode) return;
+    const touch = e.touches[0];
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = ((touch.clientX - rect.left) / rect.width) * 100;
+    const y = ((touch.clientY - rect.top) / rect.height) * 100;
+    setDragStart({ x, y });
+    setCurrentMouse({ x, y });
+    setIsDrawing(true);
+  };
+
+  const handleTouchMove = (e) => {
+    if (!isDrawing || !drawingMode) return;
+    const touch = e.touches[0];
+    const rect = e.currentTarget.getBoundingClientRect();
+    let x = ((touch.clientX - rect.left) / rect.width) * 100;
+    let y = ((touch.clientY - rect.top) / rect.height) * 100;
+    x = Math.max(0, Math.min(100, x));
+    y = Math.max(0, Math.min(100, y));
+    setCurrentMouse({ x, y });
+  };
+
+  const handleTouchEnd = () => {
+    handleMouseUp();
   };
 
   const getDrawnBoxStyle = (x, y, w, h) => {
@@ -225,9 +238,9 @@ function UploadTemplatePage({ token, onSuccess }) {
               />
             </div>
 
-            <div className="adp-field" style={{ border: '1px solid var(--border-color)', padding: '1rem', borderRadius: '8px' }}>
-              <label className="adp-label" style={{ marginBottom: '0.75rem', fontSize: '1rem' }}>Text Overlay Settings (Name)</label>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
+            <div className="adp-field-overlay-settings">
+              <label className="adp-label" style={{ marginBottom: '0.75rem', fontSize: '1rem' }}>Text Overlay Settings (Name & Designation)</label>
+              <div className="adp-settings-grid">
                 <div>
                   <label className="adp-label" style={{ fontSize: '0.8rem' }}>Font Style</label>
                   <select value={nameFont} onChange={(e) => setNameFont(e.target.value)} className="adp-input">
@@ -249,34 +262,6 @@ function UploadTemplatePage({ token, onSuccess }) {
                 <div>
                   <label className="adp-label" style={{ fontSize: '0.8rem' }}>Color</label>
                   <input type="color" value={nameColor} onChange={(e) => setNameColor(e.target.value)} style={{ width: '100%', height: '42px', padding: '0', border: 'none', borderRadius: '8px' }} />
-                </div>
-              </div>
-            </div>
-
-            <div className="adp-field" style={{ border: '1px solid var(--border-color)', padding: '1rem', borderRadius: '8px' }}>
-              <label className="adp-label" style={{ marginBottom: '0.75rem', fontSize: '1rem' }}>Text Overlay Settings (Designation)</label>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
-                <div>
-                  <label className="adp-label" style={{ fontSize: '0.8rem' }}>Font Style</label>
-                  <select value={desigFont} onChange={(e) => setDesigFont(e.target.value)} className="adp-input">
-                    <option value="Arial">Arial</option>
-                    <option value="Roboto">Roboto</option>
-                    <option value="Open Sans">Open Sans</option>
-                    <option value="Montserrat">Montserrat</option>
-                    <option value="Oswald">Oswald</option>
-                    <option value="Playfair Display">Playfair Display</option>
-                    <option value="Merriweather">Merriweather</option>
-                    <option value="Lobster">Lobster</option>
-                    <option value="Pacifico">Pacifico</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="adp-label" style={{ fontSize: '0.8rem' }}>Font Size</label>
-                  <input type="number" min="10" max="200" value={desigSize} onChange={(e) => setDesigSize(Number(e.target.value))} className="adp-input" />
-                </div>
-                <div>
-                  <label className="adp-label" style={{ fontSize: '0.8rem' }}>Color</label>
-                  <input type="color" value={desigColor} onChange={(e) => setDesigColor(e.target.value)} style={{ width: '100%', height: '42px', padding: '0', border: 'none', borderRadius: '8px' }} />
                 </div>
               </div>
             </div>
@@ -322,11 +307,14 @@ function UploadTemplatePage({ token, onSuccess }) {
               {preview ? (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', width: '100%', padding: '1rem' }}>
                   <div className="adp-draw-container">
-                    <div className="adp-draw-wrapper"
+                    <div className={`adp-draw-wrapper ${drawingMode ? 'drawing' : ''}`}
                       onMouseDown={handleMouseDown}
                       onMouseMove={handleMouseMove}
                       onMouseUp={handleMouseUp}
                       onMouseLeave={handleMouseUp}
+                      onTouchStart={handleTouchStart}
+                      onTouchMove={handleTouchMove}
+                      onTouchEnd={handleTouchEnd}
                     >
                       <img src={preview} alt="preview" className="adp-draw-img" draggable={false} />
                       
@@ -348,14 +336,7 @@ function UploadTemplatePage({ token, onSuccess }) {
                       {/* Saved Name Box */}
                       {nameWidth > 0 && (!isDrawing || drawingMode !== 'name') && (
                         <div className="adp-draw-box name" style={getDrawnBoxStyle(nameX, nameY, nameWidth, nameHeight)}>
-                          <span className="adp-draw-label">Name</span>
-                        </div>
-                      )}
-
-                      {/* Saved Designation Box */}
-                      {desigWidth > 0 && (!isDrawing || drawingMode !== 'designation') && (
-                        <div className="adp-draw-box designation" style={getDrawnBoxStyle(desigX, desigY, desigWidth, desigHeight)}>
-                          <span className="adp-draw-label">Designation</span>
+                          <span className="adp-draw-label">Name & Designation</span>
                         </div>
                       )}
                     </div>
@@ -366,15 +347,9 @@ function UploadTemplatePage({ token, onSuccess }) {
                       type="button"
                       onClick={(e) => { e.stopPropagation(); setDrawingMode(drawingMode === 'name' ? null : 'name'); }}
                       className={`adp-btn-secondary ${drawingMode === 'name' ? 'active-name' : ''}`}
+                      style={{ maxWidth: '320px' }}
                     >
-                      {drawingMode === 'name' ? 'Drawing Name Area...' : 'Draw Name Area'}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={(e) => { e.stopPropagation(); setDrawingMode(drawingMode === 'designation' ? null : 'designation'); }}
-                      className={`adp-btn-secondary ${drawingMode === 'designation' ? 'active-designation' : ''}`}
-                    >
-                      {drawingMode === 'designation' ? 'Drawing Designation Area...' : 'Draw Designation Area'}
+                      {drawingMode === 'name' ? 'Drawing Overlay Area...' : 'Draw Name & Designation Area'}
                     </button>
                   </div>
 

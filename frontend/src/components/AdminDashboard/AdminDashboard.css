@@ -22,7 +22,7 @@
   position: sticky;
   top: 0;
   min-height: calc(100vh - 70px);
-  box-shadow: 4px 0 24px rgba(0,0,0,0.15);
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.15);
 }
 
 .adp-sidebar-brand {
@@ -30,7 +30,7 @@
   align-items: center;
   gap: 0.75rem;
   padding: 0.5rem 0.75rem 1.5rem;
-  border-bottom: 1px solid rgba(255,255,255,0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   margin-bottom: 0.75rem;
   color: #ffffff;
   font-size: 0.95rem;
@@ -47,7 +47,7 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  box-shadow: 0 4px 12px rgba(242,122,24,0.35);
+  box-shadow: 0 4px 12px rgba(242, 122, 24, 0.35);
 }
 
 /* Nav items */
@@ -66,7 +66,7 @@
   border-radius: 12px;
   border: none;
   background: transparent;
-  color: rgba(255,255,255,0.55);
+  color: rgba(255, 255, 255, 0.55);
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
@@ -76,8 +76,8 @@
 }
 
 .adp-nav-item:hover {
-  background: rgba(255,255,255,0.07);
-  color: rgba(255,255,255,0.9);
+  background: rgba(255, 255, 255, 0.07);
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .adp-nav-item.active {
@@ -89,7 +89,7 @@
 
 .adp-nav-badge {
   margin-left: auto;
-  background: rgba(242,122,24,0.25);
+  background: rgba(242, 122, 24, 0.25);
   color: #fbbf24;
   font-size: 0.7rem;
   font-weight: 700;
@@ -105,9 +105,9 @@
   gap: 0.6rem;
   padding: 0.7rem 1rem;
   border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.1);
-  background: rgba(255,255,255,0.04);
-  color: rgba(255,255,255,0.45);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.45);
   font-size: 0.8rem;
   font-weight: 500;
   cursor: pointer;
@@ -116,8 +116,8 @@
 }
 
 .adp-nav-back:hover {
-  background: rgba(255,255,255,0.08);
-  color: rgba(255,255,255,0.75);
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.75);
 }
 
 /* ── Main Content ──────────────────────────────────────── */
@@ -125,7 +125,8 @@
   flex: 1;
   padding: 2.5rem 2.5rem;
   overflow-y: auto;
-  max-width: 1400px;
+  max-width: 2000px;
+  margin: 0 auto;
 }
 
 /* ── Page Shell ───────────────────────────────────────── */
@@ -151,7 +152,7 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
 }
 
 .adp-page-title {
@@ -169,7 +170,7 @@
 
 .adp-btn-icon {
   margin-left: auto;
-  background: rgba(15,23,42,0.05);
+  background: rgba(15, 23, 42, 0.05);
   border: 1px solid var(--border-color, #e2e8f0);
   border-radius: 10px;
   padding: 0.6rem;
@@ -181,7 +182,7 @@
 }
 
 .adp-btn-icon:hover {
-  background: rgba(242,122,24,0.08);
+  background: rgba(242, 122, 24, 0.08);
   border-color: var(--primary, #f27a18);
   color: var(--primary, #f27a18);
 }
@@ -199,8 +200,15 @@
 }
 
 @keyframes adp-slide-in {
-  from { opacity: 0; transform: translateY(-8px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .adp-alert-success {
@@ -227,7 +235,9 @@
   padding: 0;
 }
 
-.adp-alert-close:hover { opacity: 1; }
+.adp-alert-close:hover {
+  opacity: 1;
+}
 
 /* ── Form Shared ──────────────────────────────────────── */
 .adp-form {
@@ -261,6 +271,29 @@
   gap: 0.5rem;
 }
 
+.adp-field-overlay-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  border: 1.5px solid var(--border-color, #e2e8f0);
+  padding: 1.25rem;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.adp-settings-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1rem;
+}
+
+@media (max-width: 500px) {
+  .adp-settings-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+}
+
 .adp-label {
   font-size: 0.8rem;
   font-weight: 600;
@@ -289,7 +322,7 @@
 
 .adp-input:focus {
   border-color: var(--primary, #f27a18);
-  box-shadow: 0 0 0 3px rgba(242,122,24,0.12);
+  box-shadow: 0 0 0 3px rgba(242, 122, 24, 0.12);
 }
 
 select.adp-input {
@@ -315,7 +348,7 @@ select.adp-input {
 
 .adp-textarea:focus {
   border-color: var(--primary, #f27a18);
-  box-shadow: 0 0 0 3px rgba(242,122,24,0.12);
+  box-shadow: 0 0 0 3px rgba(242, 122, 24, 0.12);
 }
 
 /* Input with icon */
@@ -353,7 +386,9 @@ select.adp-input {
   padding: 0;
 }
 
-.adp-pw-toggle:hover { color: var(--primary, #f27a18); }
+.adp-pw-toggle:hover {
+  color: var(--primary, #f27a18);
+}
 
 /* ── Progress Bar ─────────────────────────────────────── */
 .adp-progress-wrap {
@@ -371,7 +406,7 @@ select.adp-input {
 
 .adp-progress-bar {
   height: 6px;
-  background: rgba(15,23,42,0.06);
+  background: rgba(15, 23, 42, 0.06);
   border-radius: 999px;
   overflow: hidden;
 }
@@ -398,14 +433,14 @@ select.adp-input {
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
-  box-shadow: 0 4px 14px rgba(242,122,24,0.3);
+  box-shadow: 0 4px 14px rgba(242, 122, 24, 0.3);
   width: 100%;
   font-family: inherit;
 }
 
 .adp-btn-primary:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(242,122,24,0.4);
+  box-shadow: 0 6px 20px rgba(242, 122, 24, 0.4);
 }
 
 .adp-btn-primary:disabled {
@@ -419,14 +454,16 @@ select.adp-input {
   display: inline-block;
   width: 16px;
   height: 16px;
-  border: 2.5px solid rgba(255,255,255,0.35);
+  border: 2.5px solid rgba(255, 255, 255, 0.35);
   border-top-color: white;
   border-radius: 50%;
   animation: adp-spin 0.7s linear infinite;
 }
 
 @keyframes adp-spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* ── File Drop Zone ───────────────────────────────────── */
@@ -456,7 +493,7 @@ select.adp-input {
 
 .adp-dropzone:hover:not(.has-file) {
   border-color: var(--primary, #f27a18);
-  background: rgba(242,122,24,0.02);
+  background: rgba(242, 122, 24, 0.02);
 }
 
 .adp-dropzone-inner {
@@ -473,7 +510,7 @@ select.adp-input {
   width: 64px;
   height: 64px;
   border-radius: 16px;
-  background: linear-gradient(135deg, rgba(242,122,24,0.1), rgba(245,158,11,0.1));
+  background: linear-gradient(135deg, rgba(242, 122, 24, 0.1), rgba(245, 158, 11, 0.1));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -515,7 +552,7 @@ select.adp-input {
   max-width: 100%;
   border-radius: 12px;
   object-fit: contain;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
 }
 
 .adp-preview-info {
@@ -546,8 +583,8 @@ select.adp-input {
   align-items: center;
   gap: 0.4rem;
   padding: 0.4rem 0.9rem;
-  background: rgba(239,68,68,0.08);
-  border: 1px solid rgba(239,68,68,0.15);
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.15);
   border-radius: 8px;
   color: #dc2626;
   font-size: 0.78rem;
@@ -558,7 +595,20 @@ select.adp-input {
 }
 
 .adp-preview-clear:hover {
-  background: rgba(239,68,68,0.15);
+  background: rgba(239, 68, 68, 0.15);
+}
+
+.adp-draw-buttons-row {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+}
+
+@media (max-width: 600px) {
+  .adp-draw-buttons-row {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
 }
 
 /* Secondary Button (Drawing Mode Selection) */
@@ -611,9 +661,14 @@ select.adp-input {
 .adp-draw-wrapper {
   position: relative;
   display: inline-block;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
   border-radius: 12px;
   overflow: hidden;
+  touch-action: pin-zoom;
+}
+
+.adp-draw-wrapper.drawing {
+  touch-action: none;
 }
 
 .adp-draw-img {
@@ -642,12 +697,14 @@ select.adp-input {
 }
 
 .adp-draw-box.name {
-  border-color: #3b82f6; /* Blue */
+  border-color: #3b82f6;
+  /* Blue */
   background: rgba(59, 130, 246, 0.2);
 }
 
 .adp-draw-box.designation {
-  border-color: #10b981; /* Green */
+  border-color: #10b981;
+  /* Green */
   background: rgba(16, 185, 129, 0.2);
 }
 
@@ -686,13 +743,13 @@ select.adp-input {
   display: flex;
   flex-direction: column;
   transition: all 0.25s;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .adp-template-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 8px 28px rgba(0,0,0,0.1);
-  border-color: rgba(242,122,24,0.3);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.1);
+  border-color: rgba(242, 122, 24, 0.3);
 }
 
 .adp-template-img-wrap {
@@ -752,17 +809,17 @@ select.adp-input {
 }
 
 .adp-badge.cloud {
-  background: rgba(59,130,246,0.08);
+  background: rgba(59, 130, 246, 0.08);
   color: #2563eb;
 }
 
 .adp-badge.local {
-  background: rgba(242,122,24,0.08);
+  background: rgba(242, 122, 24, 0.08);
   color: var(--primary, #f27a18);
 }
 
 .adp-badge.id {
-  background: rgba(15,23,42,0.05);
+  background: rgba(15, 23, 42, 0.05);
   color: var(--text-secondary, #64748b);
   font-weight: 500;
 }
@@ -779,8 +836,8 @@ select.adp-input {
   align-items: center;
   gap: 0.4rem;
   padding: 0.45rem 0.9rem;
-  background: rgba(239,68,68,0.07);
-  border: 1px solid rgba(239,68,68,0.15);
+  background: rgba(239, 68, 68, 0.07);
+  border: 1px solid rgba(239, 68, 68, 0.15);
   border-radius: 9px;
   color: #dc2626;
   font-size: 0.8rem;
@@ -791,7 +848,7 @@ select.adp-input {
 }
 
 .adp-btn-delete:hover {
-  background: rgba(239,68,68,0.15);
+  background: rgba(239, 68, 68, 0.15);
   transform: scale(1.02);
 }
 
@@ -836,8 +893,13 @@ select.adp-input {
 }
 
 @keyframes adp-shimmer {
-  0%   { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 /* ── Create Admin wrapper ─────────────────────────────── */
@@ -850,7 +912,7 @@ select.adp-input {
   border: 1.5px solid var(--border-color, #e2e8f0);
   border-radius: 20px;
   padding: 2rem;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.04);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
 }
 
 /* Info box */
@@ -859,8 +921,8 @@ select.adp-input {
   align-items: flex-start;
   gap: 0.6rem;
   padding: 0.8rem 1rem;
-  background: rgba(245,158,11,0.06);
-  border: 1px solid rgba(245,158,11,0.2);
+  background: rgba(245, 158, 11, 0.06);
+  border: 1px solid rgba(245, 158, 11, 0.2);
   border-radius: 10px;
   font-size: 0.8rem;
   color: #92400e;
