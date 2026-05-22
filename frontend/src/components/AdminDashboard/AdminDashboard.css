@@ -813,10 +813,7 @@ select.adp-input {
   color: #2563eb;
 }
 
-.adp-badge.local {
-  background: rgba(242, 122, 24, 0.08);
-  color: var(--primary, #f27a18);
-}
+
 
 .adp-badge.id {
   background: rgba(15, 23, 42, 0.05);

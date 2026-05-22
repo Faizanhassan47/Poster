@@ -103,13 +103,13 @@ function App() {
     if (nameTextRef.current && fabricCanvasRef.current) {
       let combinedText = '';
       if (userName && userDesignation) {
-        combinedText = `${userName} (${userDesignation})`;
+        combinedText = `${userName}\n    ${userDesignation}`;
       } else if (userName) {
         combinedText = userName;
       } else if (userDesignation) {
-        combinedText = `(${userDesignation})`;
+        combinedText = `    ${userDesignation}`;
       } else {
-        combinedText = 'Your Name (Designation)';
+        combinedText = 'Your Name\n    Designation';
       }
       nameTextRef.current.set('text', combinedText);
       fabricCanvasRef.current.renderAll();
@@ -287,13 +287,13 @@ function App() {
 
         let combinedText = '';
         if (userName && userDesignation) {
-          combinedText = `${userName} (${userDesignation})`;
+          combinedText = `${userName}\n    ${userDesignation}`;
         } else if (userName) {
           combinedText = userName;
         } else if (userDesignation) {
-          combinedText = `(${userDesignation})`;
+          combinedText = `    ${userDesignation}`;
         } else {
-          combinedText = 'Your Name (Designation)';
+          combinedText = 'Your Name\n    Designation';
         }
 
         nameTextRef.current = new fabric.Textbox(combinedText, {
@@ -303,7 +303,7 @@ function App() {
           fill: o.name?.color || '#000000',
           fontSize: (o.name?.fontSize || 40) * scaleFactor,
           fontFamily: o.name?.fontFamily || 'Arial',
-          textAlign: 'center',
+          textAlign: 'left',
           originX: 'left',
           originY: 'top',
           selectable: false,

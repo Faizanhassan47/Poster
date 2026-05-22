@@ -317,7 +317,7 @@ function UploadTemplatePage({ token, onSuccess }) {
                       onTouchEnd={handleTouchEnd}
                     >
                       <img src={preview} alt="preview" className="adp-draw-img" draggable={false} />
-                      
+
                       {/* Interactive Drawing Overlay */}
                       {drawingMode && (
                         <div className="adp-draw-overlay" />
@@ -341,7 +341,7 @@ function UploadTemplatePage({ token, onSuccess }) {
                       )}
                     </div>
                   </div>
-                  
+
                   <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center' }}>
                     <button
                       type="button"
@@ -475,7 +475,7 @@ function ManageTemplatesPage({ token }) {
                 <p className="adp-template-desc">{t.description || 'No description.'}</p>
                 <div className="adp-template-meta">
                   <span className={`adp-badge ${t.storage === 'idrive-e2' || t.storage === 'google-drive' ? 'cloud' : 'local'}`}>
-                    {t.storage === 'idrive-e2' ? '☁️ iDrive E2' : t.storage === 'google-drive' ? '☁️ Google Drive' : '💾 Local'}
+
                   </span>
                   <span className="adp-badge id">ID: {t.fileId.substring(0, 12)}…</span>
                 </div>
@@ -654,15 +654,15 @@ export default function AdminDashboard({ token, onClose }) {
         const data = await res.json();
         setTemplateCount(data.length);
       }
-    } catch {}
+    } catch { }
   };
 
   useEffect(() => { refreshCount(); }, []);
 
   const tabs = [
-    { id: 'upload',  label: 'Upload Template',  icon: <UploadCloud size={17} /> },
-    { id: 'manage',  label: 'Manage Templates', icon: <LayoutDashboard size={17} /> },
-    { id: 'admin',   label: 'Create Admin',     icon: <UserPlus size={17} /> },
+    { id: 'upload', label: 'Upload Template', icon: <UploadCloud size={17} /> },
+    { id: 'manage', label: 'Manage Templates', icon: <LayoutDashboard size={17} /> },
+    { id: 'admin', label: 'Create Admin', icon: <UserPlus size={17} /> },
   ];
 
   return (
