@@ -361,11 +361,19 @@ function UploadTemplatePage({ token, onSuccess }) {
                     </div>
                   </div>
                   
-                  <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center' }}>
-                    <button type="button" onClick={(e) => { e.stopPropagation(); setDrawingMode(drawingMode === 'name' ? null : 'name'); }} className="adp-btn-secondary" style={{ background: drawingMode === 'name' ? '#eff6ff' : '#ffffff', border: `1px solid ${drawingMode === 'name' ? '#3b82f6' : 'var(--border-color)'}`, color: drawingMode === 'name' ? '#3b82f6' : 'inherit', padding: '0.5rem', borderRadius: '8px', cursor: 'pointer', flex: 1 }}>
+                  <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center' }}>
+                    <button
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); setDrawingMode(drawingMode === 'name' ? null : 'name'); }}
+                      className={`adp-btn-secondary ${drawingMode === 'name' ? 'active-name' : ''}`}
+                    >
                       {drawingMode === 'name' ? 'Drawing Name Area...' : 'Draw Name Area'}
                     </button>
-                    <button type="button" onClick={(e) => { e.stopPropagation(); setDrawingMode(drawingMode === 'designation' ? null : 'designation'); }} className="adp-btn-secondary" style={{ background: drawingMode === 'designation' ? '#ecfdf5' : '#ffffff', border: `1px solid ${drawingMode === 'designation' ? '#10b981' : 'var(--border-color)'}`, color: drawingMode === 'designation' ? '#10b981' : 'inherit', padding: '0.5rem', borderRadius: '8px', cursor: 'pointer', flex: 1 }}>
+                    <button
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); setDrawingMode(drawingMode === 'designation' ? null : 'designation'); }}
+                      className={`adp-btn-secondary ${drawingMode === 'designation' ? 'active-designation' : ''}`}
+                    >
                       {drawingMode === 'designation' ? 'Drawing Designation Area...' : 'Draw Designation Area'}
                     </button>
                   </div>

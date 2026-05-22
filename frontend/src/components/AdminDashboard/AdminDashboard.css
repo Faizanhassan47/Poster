@@ -125,7 +125,7 @@
   flex: 1;
   padding: 2.5rem 2.5rem;
   overflow-y: auto;
-  max-width: 900px;
+  max-width: 1400px;
 }
 
 /* ── Page Shell ───────────────────────────────────────── */
@@ -238,9 +238,15 @@
 
 .adp-form-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem;
+  grid-template-columns: 1fr 1.5fr;
+  gap: 2.5rem;
   align-items: start;
+}
+
+@media (min-width: 1200px) {
+  .adp-form-row {
+    grid-template-columns: 420px 1fr;
+  }
 }
 
 .adp-form-fields {
@@ -442,6 +448,12 @@ select.adp-input {
   flex-direction: column;
 }
 
+.adp-dropzone.has-file {
+  cursor: default;
+  border-style: solid;
+  border-color: var(--border-color, #e2e8f0);
+}
+
 .adp-dropzone:hover:not(.has-file) {
   border-color: var(--primary, #f27a18);
   background: rgba(242,122,24,0.02);
@@ -549,6 +561,44 @@ select.adp-input {
   background: rgba(239,68,68,0.15);
 }
 
+/* Secondary Button (Drawing Mode Selection) */
+.adp-btn-secondary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: #ffffff;
+  border: 1.5px solid var(--border-color, #e2e8f0);
+  border-radius: 10px;
+  color: var(--text-primary, #0f172a);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+  flex: 1;
+}
+
+.adp-btn-secondary:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.adp-btn-secondary.active-name {
+  background: #eff6ff;
+  border-color: #3b82f6;
+  color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.adp-btn-secondary.active-designation {
+  background: #ecfdf5;
+  border-color: #10b981;
+  color: #059669;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+}
+
 /* ── Interactive Drawing Canvas ────────────────────────── */
 .adp-draw-container {
   position: relative;
@@ -568,7 +618,7 @@ select.adp-input {
 
 .adp-draw-img {
   display: block;
-  max-height: 500px;
+  max-height: max(550px, 72vh);
   max-width: 100%;
   object-fit: contain;
 }
